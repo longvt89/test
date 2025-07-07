@@ -152,13 +152,14 @@
             justify-content: flex-start; /* Đẩy sơ đồ về bên trái */
             align-items: flex-start; /* Căn chỉnh các mục từ trên xuống */
             margin-bottom: 15px; /* Khoảng cách giữa container lốp và phần Lưu ý */
-            height: 200px; /* Chiều cao phù hợp với sơ đồ */
+            height: auto; /* Chiều cao tự động dựa trên nội dung */
         }
 
         .tire-diagram {
             position: relative;
-            width: 140px; /* Chiều rộng sơ đồ */
-            height: 200px; /* Chiều cao sơ đồ */
+            width: 100%; /* Đổi thành 100% để tự động co giãn */
+            max-width: 140px; /* Giới hạn tối đa để không quá rộng */
+            height: auto; /* Chiều cao tự động dựa trên tỷ lệ ảnh */
             border: none;
             background: none;
             z-index: 0;
@@ -167,7 +168,7 @@
 
         .tire-diagram img {
             width: 100%;
-            height: 100%;
+            height: auto;
             position: absolute; /* Quan trọng để các ô input có thể định vị tương đối */
             top: 0;
             left: 0;
@@ -198,8 +199,8 @@
         /* Tinh chỉnh vị trí các ô nhập liệu Áp suất/Độ dày theo sơ đồ xe */
         .tire-front-left { top: 20px; left: 10px; } /* Gần mép trái trên bánh trước trái */
         .tire-front-right { top: 20px; right: 10px; } /* Gần mép phải trên bánh trước phải */
-        .tire-rear-left { top: 130px; left: 10px; } /* Gần mép trái dưới bánh sau trái */
-        .tire-rear-right { top: 130px; right: 10px; } /* Gần mép phải dưới bánh sau phải */
+        .tire-rear-left { bottom: 20px; left: 10px; } /* Gần mép trái dưới bánh sau trái */
+        .tire-rear-right { bottom: 20px; right: 10px; } /* Gần mép phải dưới bánh sau phải */
         .tire-spare { bottom: 10px; left: 50%; transform: translateX(-50%); width: 80px; } /* Giữ nguyên trung tâm dưới thân xe */
 
         .tire-input-group {
@@ -535,12 +536,13 @@
             .tire-diagram-container {
                 margin-bottom: 5px;
                 justify-content: flex-start;
-                height: 160px;
+                height: auto;
             }
 
             .tire-diagram {
-                width: 100px;
-                height: 160px;
+                width: 100%;
+                max-width: 100px;
+                height: auto;
             }
 
             .tire-position {
@@ -553,8 +555,8 @@
 
             .tire-front-left { top: 15px; left: 5px; }
             .tire-front-right { top: 15px; right: 5px; }
-            .tire-rear-left { top: 100px; left: 5px; }
-            .tire-rear-right { top: 100px; right: 5px; }
+            .tire-rear-left { bottom: 15px; left: 5px; }
+            .tire-rear-right { bottom: 15px; right: 5px; }
             .tire-spare { bottom: 5px; left: 50%; transform: translateX(-50%); width: 55px; }
 
             .tire-input-group label { font-size: 5px; margin-right: 1px; }
@@ -671,7 +673,7 @@
                 <div class="tire-section">
                     <div class="tire-diagram-container">
                         <div class="tire-diagram">
-                            <img src="sodooto.png" alt="Sơ đồ ô tô" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+                            <img src="sodooto.png" alt="Sơ đồ ô tô" style="width: 100%; height: auto; position: absolute; top: 0; left: 0; object-fit: contain; object-position: center;">
                         </div>
 
                         <div class="tire-position tire-front-left">
@@ -736,13 +738,12 @@
                         </div>
                     </div>
 
-                    <!-- Di chuyển "Size lốp khuyến cáo" xuống dưới sơ đồ, trên "Lưu ý" -->
+                    <!-- "Size lốp khuyến cáo" và "Lưu ý" giữ nguyên vị trí -->
                     <div class="tire-size-recommendation">
                         <label for="tireSize">Size lốp khuyến cáo:</label>
                         <input type="text" id="tireSize" name="sizeLopKhuyenCao" placeholder="Nhập size lốp">
                     </div>
 
-                    <!-- Phần "Lưu ý" vẫn ở dưới -->
                     <div class="recommendation">
                         <label for="notes">Lưu ý:</label>
                         <textarea id="notes" name="ghiChuChung" placeholder="Ghi chú các lưu ý cần thiết"></textarea>
