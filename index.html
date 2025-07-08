@@ -134,7 +134,7 @@
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr; /* Chia 2 cột cho sơ đồ lốp và kiểm tra an toàn */
-            gap: 15px; /* Giảm khoảng cách giữa 2 cột để dịch chuyển sang phải */
+            gap: 5px; /* Giảm khoảng cách giữa 2 cột để dịch chuyển sang phải */
             margin-bottom: 15px;
         }
 
@@ -156,7 +156,7 @@
             border-bottom: 1px dashed #ccc; /* Đường kẻ phân chia */
             padding-bottom: 15px; /* Khoảng cách dưới đường kẻ */
             margin-bottom: 15px; /* Khoảng cách với phần bên dưới (Size lốp, Lưu ý) */
-            margin-left: 10px; /* Dịch chuyển toàn bộ sơ đồ sang phải một chút */
+            margin-left: 20px; /* Dịch chuyển toàn bộ sơ đồ sang phải nhiều hơn */
         }
 
         .tire-diagram {
@@ -536,7 +536,7 @@
             }
 
             /* Điều chỉnh cho in ấn - quan trọng */
-            .tire-diagram-wrapper {
+            .tire-diagram-container {
                 justify-content: flex-start;
                 height: 160px;
                 padding-bottom: 10px;
@@ -558,10 +558,10 @@
             }
 
             /* Vị trí ô nhập liệu khi in */
-            .tire-front-left { top: 25px; left: -60px; } 
-            .tire-front-right { top: 25px; left: 105px; } 
-            .tire-rear-left { top: 105px; left: -60px; } 
-            .tire-rear-right { top: 105px; left: 105px; } 
+            .tire-front-left { top: 25px; left: -60px; }
+            .tire-front-right { top: 25px; left: 105px; }
+            .tire-rear-left { top: 105px; left: -60px; }
+            .tire-rear-right { top: 105px; left: 105px; }
             .tire-spare { bottom: 0px; left: 50%; transform: translateX(-50%); width: 55px; }
 
             .tire-input-group label { font-size: 5px; margin-right: 1px; }
