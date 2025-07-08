@@ -146,7 +146,7 @@
             position: relative;
         }
 
-        .tire-diagram-container { /* Thêm một wrapper để chứa sơ đồ và các ô input lốp */
+        .tire-diagram-wrapper { /* Thêm một wrapper để chứa sơ đồ và các ô input lốp */
             position: relative;
             width: 100%;
             display: flex; /* Bố cục flex ngang cho sơ đồ và các ô lốp */
@@ -199,15 +199,15 @@
         }
 
         /* Tinh chỉnh vị trí các ô nhập liệu Áp suất/Độ dày để khớp với hình ảnh */
-        /* Các giá trị này được điều chỉnh dựa trên link demo và ảnh bạn đã cắt */
+        /* Các giá trị này được điều chỉnh dựa trên link demo và ảnh của bạn */
         /* Lốp trước bên trái */
-        .tire-front-left { top: 60px; left: -85px; } 
+        .tire-front-left { top: 38px; left: -90px; } 
         /* Lốp trước bên phải */
-        .tire-front-right { top: 60px; left: 165px; } /* Căn phải so với sơ đồ */
+        .tire-front-right { top: 38px; left: 165px; } /* Căn phải so với sơ đồ */
         /* Lốp sau bên trái */
-        .tire-rear-left { top: 195px; left: -85px; } 
+        .tire-rear-left { top: 165px; left: -90px; } 
         /* Lốp sau bên phải */
-        .tire-rear-right { top: 195px; left: 165px; } /* Căn phải so với sơ đồ */
+        .tire-rear-right { top: 165px; left: 165px; } /* Căn phải so với sơ đồ */
         /* Lốp dự phòng (nằm dưới cùng của sơ đồ, bên trong container) */
         .tire-spare { bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; }
 
@@ -553,10 +553,10 @@
             }
 
             /* Vị trí ô nhập liệu khi in */
-            .tire-front-left { top: 25px; left: -60px; }
-            .tire-front-right { top: 25px; left: 105px; }
-            .tire-rear-left { top: 105px; left: -60px; }
-            .tire-rear-right { top: 105px; left: 105px; }
+            .tire-front-left { top: 25px; left: -60px; } 
+            .tire-front-right { top: 25px; left: 105px; } 
+            .tire-rear-left { top: 105px; left: -60px; } 
+            .tire-rear-right { top: 105px; left: 105px; } 
             .tire-spare { bottom: 0px; left: 50%; transform: translateX(-50%); width: 55px; }
 
             .tire-input-group label { font-size: 5px; margin-right: 1px; }
@@ -671,7 +671,7 @@
                 <div class="tire-section">
                     <div class="tire-diagram-container">
                         <div class="tire-diagram">
-                            <img src="sodooto.png" alt="Sơ đồ ô tô" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
+                            <img src="Untitled.png" alt="Sơ đồ ô tô" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
                         </div>
 
                         <div class="tire-position tire-front-left">
