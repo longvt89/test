@@ -129,6 +129,7 @@
             flex-shrink: 1;
         }
 
+
         /* Main Content Grid (Sơ đồ lốp và kiểm tra an toàn) */
         .main-content {
             display: grid;
@@ -140,26 +141,27 @@
         /* Tire Section */
         .tire-section {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            flex-direction: column; /* Sắp xếp các mục theo cột (sơ đồ + info bên dưới) */
+            align-items: flex-start; /* Căn trái các mục */
             position: relative;
         }
 
-        .tire-diagram-container {
+        .tire-diagram-wrapper { /* Thêm một wrapper để chứa sơ đồ và các ô input lốp */
             position: relative;
-            width: 100%; /* Đảm bảo đủ rộng cho flexbox */
-            display: flex; /* Sử dụng flexbox để căn chỉnh sơ đồ và phần ghi chú */
-            justify-content: flex-start; /* Đẩy sơ đồ về bên trái */
-            align-items: flex-start; /* Căn chỉnh các mục từ trên xuống */
-            margin-bottom: 15px; /* Khoảng cách giữa container lốp và phần Lưu ý */
-            height: auto; /* Chiều cao tự động dựa trên nội dung */
+            width: 100%;
+            display: flex; /* Bố cục flex ngang cho sơ đồ và các ô lốp */
+            justify-content: flex-start; /* Căn trái sơ đồ */
+            align-items: flex-start; /* Căn top các mục */
+            height: 230px; /* Chiều cao cố định của vùng sơ đồ */
+            border-bottom: 1px dashed #ccc; /* Đường kẻ phân chia */
+            padding-bottom: 15px; /* Khoảng cách dưới đường kẻ */
+            margin-bottom: 15px; /* Khoảng cách với phần bên dưới (Size lốp, Lưu ý) */
         }
 
         .tire-diagram {
             position: relative;
-            width: 100%; /* Đổi thành 100% để tự động co giãn */
-            max-width: 140px; /* Giới hạn tối đa để không quá rộng */
-            height: auto; /* Chiều cao tự động dựa trên tỷ lệ ảnh */
+            width: 160px; /* Chiều rộng ảnh sơ đồ */
+            height: 230px; /* Chiều cao ảnh sơ đồ */
             border: none;
             background: none;
             z-index: 0;
@@ -168,18 +170,18 @@
 
         .tire-diagram img {
             width: 100%;
-            height: auto;
-            position: absolute; /* Quan trọng để các ô input có thể định vị tương đối */
+            height: 100%;
+            position: absolute;
             top: 0;
             left: 0;
-            object-fit: contain; /* Đảm bảo ảnh vừa vặn mà không bị biến dạng */
-            object-position: center; /* Đảm bảo ảnh nằm giữa trong khung */
+            object-fit: contain;
+            object-position: center;
         }
 
         /* Khung nhập liệu cho từng lốp */
         .tire-position {
             position: absolute;
-            background: #000; /* Nền đen */
+            background: #000;
             border-radius: 5px;
             display: flex;
             flex-direction: column;
@@ -192,21 +194,28 @@
             z-index: 1;
             width: 80px; /* Chiều rộng cố định cho ô nhập */
             height: auto;
-            line-height: 1.1; /* Giảm line-height để gọn hơn */
-            border: 1px solid #000; /* Viền để trông rõ hơn */
+            line-height: 1.1;
+            border: 1px solid #000;
         }
 
-        /* Tinh chỉnh vị trí các ô nhập liệu Áp suất/Độ dày theo sơ đồ xe */
-        .tire-front-left { top: 20px; left: 10px; } /* Gần mép trái trên bánh trước trái */
-        .tire-front-right { top: 20px; right: 10px; } /* Gần mép phải trên bánh trước phải */
-        .tire-rear-left { bottom: 20px; left: 10px; } /* Gần mép trái dưới bánh sau trái */
-        .tire-rear-right { bottom: 20px; right: 10px; } /* Gần mép phải dưới bánh sau phải */
-        .tire-spare { bottom: 10px; left: 50%; transform: translateX(-50%); width: 80px; } /* Giữ nguyên trung tâm dưới thân xe */
+        /* Tinh chỉnh vị trí các ô nhập liệu Áp suất/Độ dày để khớp với hình ảnh */
+        /* Các giá trị này được điều chỉnh dựa trên link demo và ảnh của bạn */
+        /* Lốp trước bên trái */
+        .tire-front-left { top: 38px; left: -90px; } 
+        /* Lốp trước bên phải */
+        .tire-front-right { top: 38px; left: 165px; } /* Căn phải so với sơ đồ */
+        /* Lốp sau bên trái */
+        .tire-rear-left { top: 165px; left: -90px; } 
+        /* Lốp sau bên phải */
+        .tire-rear-right { top: 165px; left: 165px; } /* Căn phải so với sơ đồ */
+        /* Lốp dự phòng (nằm dưới cùng của sơ đồ, bên trong container) */
+        .tire-spare { bottom: -10px; left: 50%; transform: translateX(-50%); width: 80px; }
+
 
         .tire-input-group {
             display: flex;
             align-items: center;
-            margin-bottom: 1px; /* Giảm khoảng cách giữa các dòng input trong hộp */
+            margin-bottom: 1px;
             width: 100%;
             justify-content: space-between;
         }
@@ -217,40 +226,29 @@
         .tire-input-group label {
             font-size: 8px;
             white-space: nowrap;
-            margin-right: 2px; /* Giảm khoảng cách */
+            margin-right: 2px;
         }
 
         .pressure-input, .thickness-input {
             background: white;
             border: 1px solid #ccc;
-            width: 28px; /* Chiều rộng nhỏ hơn */
-            height: 13px; /* Chiều cao nhỏ hơn */
+            width: 28px;
+            height: 13px;
             text-align: center;
-            font-size: 7px; /* Font nhỏ hơn */
+            font-size: 7px;
             padding: 0 1px;
         }
         .tire-position small {
-            font-size: 6px; /* Font nhỏ hơn cho đơn vị */
+            font-size: 6px;
             margin-left: 1px;
         }
 
-        /* Phần "Size lốp khuyến cáo" và "Lưu ý" */
-        .tire-info-right {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start; /* Căn chỉnh từ trên xuống */
-            flex-grow: 1; /* Cho phép mở rộng */
-            padding-left: 20px; /* Khoảng cách từ sơ đồ lốp */
-            width: calc(100% - 140px); /* Điều chỉnh width theo tire-diagram */
-        }
-
-        .tire-diagram-container .tire-info-right {
-            display: none; /* Ẩn phần tire-info-right trong tire-diagram-container */
-        }
-
+        /* Phần "Size lốp khuyến cáo" và "Lưu ý" được chuyển xuống dưới sơ đồ */
         .tire-size-recommendation {
+            width: 100%; /* Chiếm toàn bộ chiều rộng của cột tire-section */
             margin-bottom: 10px; /* Khoảng cách giữa size và phần Lưu ý */
         }
+
         .tire-size-recommendation label {
             font-weight: bold;
             margin-bottom: 5px;
@@ -267,11 +265,11 @@
 
         .recommendation {
             font-size: 11px;
-            width: 100%;
+            width: 100%; /* Chiếm toàn bộ chiều rộng của cột tire-section */
             display: flex;
             flex-direction: column;
             flex-grow: 1;
-            margin-top: 10px; /* Khoảng cách từ phần trên */
+            margin-top: 0; /* Đã có khoảng cách từ tire-size-recommendation */
         }
 
         .recommendation label {
@@ -279,7 +277,7 @@
         }
 
         .recommendation textarea {
-            width: 100%; /* Sửa lỗi width: 0% thành 100% */
+            width: 100%;
             flex-grow: 1;
             border: 1px dotted #000;
             padding: 5px;
@@ -533,16 +531,17 @@
 
             .main-content { gap: 8px; margin-bottom: 8px; }
 
+            /* Điều chỉnh cho in ấn - quan trọng */
             .tire-diagram-container {
-                margin-bottom: 5px;
                 justify-content: flex-start;
-                height: auto;
+                height: 160px;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
             }
 
             .tire-diagram {
-                width: 100%;
-                max-width: 100px;
-                height: auto;
+                width: 100px;
+                height: 160px;
             }
 
             .tire-position {
@@ -553,11 +552,12 @@
                 line-height: 1;
             }
 
-            .tire-front-left { top: 15px; left: 5px; }
-            .tire-front-right { top: 15px; right: 5px; }
-            .tire-rear-left { bottom: 15px; left: 5px; }
-            .tire-rear-right { bottom: 15px; right: 5px; }
-            .tire-spare { bottom: 5px; left: 50%; transform: translateX(-50%); width: 55px; }
+            /* Vị trí ô nhập liệu khi in */
+            .tire-front-left { top: 25px; left: -60px; } 
+            .tire-front-right { top: 25px; left: 105px; } 
+            .tire-rear-left { top: 105px; left: -60px; } 
+            .tire-rear-right { top: 105px; left: 105px; } 
+            .tire-spare { bottom: 0px; left: 50%; transform: translateX(-50%); width: 55px; }
 
             .tire-input-group label { font-size: 5px; margin-right: 1px; }
             .pressure-input, .thickness-input {
@@ -568,11 +568,9 @@
             }
             .tire-position small { font-size: 4px; margin-left: 0; }
 
-            .tire-info-right {
-                padding-left: 10px;
-                width: calc(100% - 100px);
+            .tire-section > .tire-size-recommendation {
+                margin-top: 10px;
             }
-            .tire-size-recommendation { margin-bottom: 5px; }
             .tire-size-recommendation label { margin-bottom: 1px; font-size: 8px; }
             .tire-size-recommendation input { min-width: 70px; font-size: 8px; }
 
@@ -607,7 +605,7 @@
             <button class="print-button" onclick="handlePrint()">🖨️ In Phiếu Kiểm Tra</button>
             <button class="tire-form-button" onclick="window.location.href='https://longvt89.github.io/phieukiemtra/phieu_kiem_tra_lop.html'">📄 Phiếu Kiểm Tra Lốp</button>
             <button class="tire-form-button" id="submitToSheet">📤 Gửi Thông Tin</button>
-        </div>    
+        </div>
         <div class="form-content">
             <div class="header">
                 <div class="header-left">
@@ -673,7 +671,7 @@
                 <div class="tire-section">
                     <div class="tire-diagram-container">
                         <div class="tire-diagram">
-                            <img src="Untitled.png" alt="Sơ đồ ô tô" style="width: 100%; height: auto; position: absolute; top: 0; left: 0; object-fit: contain; object-position: center;">
+                            <img src="Untitled.png" alt="Sơ đồ ô tô" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
                         </div>
 
                         <div class="tire-position tire-front-left">
@@ -738,12 +736,10 @@
                         </div>
                     </div>
 
-                    <!-- "Size lốp khuyến cáo" và "Lưu ý" giữ nguyên vị trí -->
                     <div class="tire-size-recommendation">
                         <label for="tireSize">Size lốp khuyến cáo:</label>
                         <input type="text" id="tireSize" name="sizeLopKhuyenCao" placeholder="Nhập size lốp">
                     </div>
-
                     <div class="recommendation">
                         <label for="notes">Lưu ý:</label>
                         <textarea id="notes" name="ghiChuChung" placeholder="Ghi chú các lưu ý cần thiết"></textarea>
