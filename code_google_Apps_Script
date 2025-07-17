@@ -1,0 +1,215 @@
+const SPREADSHEET_ID = '19WLNlLB-1_pO98Vd9YVgUdH2xSQEbKP5WKXEKSw6Fr8'; // <--- THAY THẾ BẰNG ID CỦA GOOGLE SHEET CỦA BẠN (VD: ID của file DATAKH)
+const SHEET_NAME_PHIEU_XE = 'DATAKH';     // Tên sheet cho Phiếu Kiểm Tra Xe
+const SHEET_NAME_PHIEU_GAM = 'DataGam';   // Tên sheet cho Phiếu Kiểm Tra Gầm
+const SHEET_NAME_PHIEU_LOP = 'DataLop';   // Tên sheet cho Phiếu Đánh Giá Hiện Trạng Lốp
+const DEBUG_SHEET_NAME = 'DEBUG_LOG';   // Tên trang tính để ghi log debug
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  // Giữ khóa trong tối đa 30 giây để ngăn các yêu cầu đồng thời gây lỗi
+  lock.waitLock(30000); 
+
+  let debugLogEntry = []; // Mảng để lưu thông tin log cho dòng hiện tại
+  let targetSheetNameForLog = 'Unknown'; // Tên sheet mục tiêu (để ghi log)
+  let targetSheet = null; // Biến giữ sheet mục tiêu
+
+  try {
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let debugSheet = ss.getSheetByName(DEBUG_SHEET_NAME);
+    if (!debugSheet) {
+      debugSheet = ss.insertSheet(DEBUG_SHEET_NAME);
+      // Khởi tạo headers cho debug sheet
+      debugSheet.appendRow(['Timestamp', 'Request Type', 'Raw PostData', 'e.parameter JSON', 'Target Sheet', 'FormType', 'Error Message']);
+    }
+
+    const parameters = e.parameter; // Dữ liệu được gửi từ form
+    const rawPostData = e.postData ? e.postData.contents : ''; // Dữ liệu thô của POST request
+
+    const timestamp = new Date();
+    const formType = parameters.formType || 'Undefined'; // Lấy formType từ dữ liệu form
+
+    let headersToUse = []; // Mảng chứa headers cụ thể cho từng loại form
+
+    // --- Logic phân loại và chuẩn bị Sheet ---
+    if (formType === 'PhieuKiemTraGam') {
+      targetSheetNameForLog = SHEET_NAME_PHIEU_GAM;
+      targetSheet = ss.getSheetByName(SHEET_NAME_PHIEU_GAM);
+      if (!targetSheet) {
+        targetSheet = ss.insertSheet(SHEET_NAME_PHIEU_GAM);
+        // Headers cho Phiếu Kiểm Tra Gầm (phải khớp chính xác với các name trong HTML)
+        headersToUse = [
+          "Timestamp", "FormType", "receiveDate", "deliverDate", "customerName",
+          "vehicleTypeYear", "licensePlate", "km", "note", "other",
+          "customerRequest", "advisor", "ktv",
+          // Phần Gầm Trước
+          "front_rotuyn_lai_trong_status", "front_rotuyn_lai_trong_thay", "front_rotuyn_lai_trong_luuy", "front_rotuyn_lai_trong_tot",
+          "front_rotuyn_lai_ngoai_status", "front_rotuyn_lai_ngoai_thay", "front_rotuyn_lai_ngoai_luuy", "front_rotuyn_lai_ngoai_tot",
+          "front_rotuyn_tru_tren_status", "front_rotuyn_tru_tren_thay", "front_rotuyn_tru_tren_luuy", "front_rotuyn_tru_tren_tot",
+          "front_rotuyn_tru_duoi_status", "front_rotuyn_tru_duoi_thay", "front_rotuyn_tru_duoi_luuy", "front_rotuyn_tru_duoi_tot",
+          "front_rotuyn_can_bang_status", "front_rotuyn_can_bang_thay", "front_rotuyn_can_bang_luuy", "front_rotuyn_can_bang_tot",
+          "front_rotuyn_pass_lai_phu_status", "front_rotuyn_pass_lai_phu_thay", "front_rotuyn_pass_lai_phu_luuy", "front_rotuyn_pass_lai_phu_tot",
+          "front_cao_su_chu_d_status", "front_cao_su_chu_d_thay", "front_cao_su_chu_d_luuy", "front_cao_su_chu_d_tot",
+          "front_cao_su_chu_a_tren_status", "front_cao_su_chu_a_tren_thay", "front_cao_su_chu_a_tren_luuy", "front_cao_su_chu_a_tren_tot",
+          "front_cao_su_chu_a_duoi_status", "front_cao_su_chu_a_duoi_thay", "front_cao_su_chu_a_duoi_luuy", "front_cao_su_chu_a_duoi_tot",
+          "front_bo_thang_truoc_status", "front_bo_thang_truoc_thay", "front_bo_thang_truoc_luuy", "front_bo_thang_truoc_tot",
+          "front_bac_dan_banh_truoc_trai_phai_status", "front_bac_dan_banh_truoc_trai_phai_thay", "front_bac_dan_banh_truoc_trai_phai_luuy", "front_bac_dan_banh_truoc_trai_phai_tot",
+          "front_bat_beo_phuoc_truoc_status", "front_bat_beo_phuoc_truoc_thay", "front_bat_beo_phuoc_truoc_luuy", "front_bat_beo_phuoc_truoc_tot",
+          "front_tam_bong_phuoc_truoc_status", "front_tam_bong_phuoc_truoc_thay", "front_tam_bong_phuoc_truoc_luuy", "front_tam_bong_phuoc_truoc_tot",
+          "front_phuoc_truoc_trai_phai_status", "front_phuoc_truoc_trai_phai_thay", "front_phuoc_truoc_trai_phai_luuy", "front_phuoc_truoc_trai_phai_tot",
+          // Phần Gầm Sau
+          "rear_bo_thang_sau_status", "rear_bo_thang_sau_thay", "rear_bo_thang_sau_luuy", "rear_bo_thang_sau_tot",
+          "rear_cao_su_chu_d_status", "rear_cao_su_chu_d_thay", "rear_cao_su_chu_d_luuy", "rear_cao_su_chu_d_tot",
+          "rear_rotuyn_can_bang_sau_status", "rear_rotuyn_can_bang_sau_thay", "rear_rotuyn_can_bang_sau_luuy", "rear_rotuyn_can_bang_sau_tot",
+          "rear_bac_dan_banh_sau_trai_phai_status", "rear_bac_dan_banh_sau_trai_phai_thay", "rear_bac_dan_banh_sau_trai_phai_luuy", "rear_bac_dan_banh_sau_trai_phai_tot",
+          "rear_phuoc_sau_trai_phai_status", "rear_phuoc_sau_trai_phai_thay", "rear_phuoc_sau_trai_phai_luuy", "rear_phuoc_sau_trai_phai_tot"
+        ];
+        targetSheet.appendRow(headersGam);
+      }
+    } else if (formType === 'PhieuKiemTraXe') {
+      targetSheetNameForLog = SHEET_NAME_PHIEU_XE;
+      targetSheet = ss.getSheetByName(SHEET_NAME_PHIEU_XE);
+      if (!targetSheet) {
+        targetSheet = ss.insertSheet(SHEET_NAME_PHIEU_XE);
+        // Headers cho Phiếu Kiểm Tra Xe (phải khớp chính xác với các name trong HTML)
+        headersToUse = [
+          "Timestamp", "FormType", "receiptNumber", "currentMonthYear",
+          "hoten", "dienthoai", "email", "nhanxe", "kiemTraAnToan", // 'kiemTraAnToan' là radio button
+          "loaixe", "bienso", "sokm", "giaoxe",
+          "tire_pressure_FL", "tire_thickness_FL",
+          "tire_pressure_FR", "tire_thickness_FR",
+          "tire_pressure_RL", "tire_thickness_RL",
+          "tire_pressure_RR", "tire_thickness_RR",
+          "tire_pressure_Spare", "tire_thickness_Spare",
+          "sizeLopKhuyenCao", "ghiChuChung",
+          "daiLyPhuTrach", "khachHangKyTen",
+          // Các trường cho bảng chi tiết công việc/vật tư
+          "item_hangMuc_1", "item_dienGiai_1", "item_soLuong_1", "item_donGia_1", "item_thanhTien_1", "item_xacNhan_1",
+          "item_hangMuc_2", "item_dienGiai_2", "item_soLuong_2", "item_donGia_2", "item_thanhTien_2", "item_xacNhan_2",
+          "item_hangMuc_3", "item_dienGiai_3", "item_soLuong_3", "item_donGia_3", "item_thanhTien_3", "item_xacNhan_3",
+          "item_hangMuc_4", "item_dienGiai_4", "item_soLuong_4", "item_donGia_4", "item_thanhTien_4", "item_xacNhan_4",
+          "item_hangMuc_5", "item_dienGiai_5", "item_soLuong_5", "item_donGia_5", "item_thanhTien_5", "item_xacNhan_5",
+          "item_hangMuc_6", "item_dienGiai_6", "item_soLuong_6", "item_donGia_6", "item_thanhTien_6", "item_xacNhan_6",
+          "item_hangMuc_7", "item_dienGiai_7", "item_soLuong_7", "item_donGia_7", "item_thanhTien_7", "item_xacNhan_7",
+          "item_hangMuc_8", "item_dienGiai_8", "item_soLuong_8", "item_donGia_8", "item_thanhTien_8", "item_xacNhan_8",
+          "item_hangMuc_9", "item_dienGiai_9", "item_soLuong_9", "item_donGia_9", "item_thanhTien_9", "item_xacNhan_9",
+          "item_hangMuc_10", "item_dienGiai_10", "item_soLuong_10", "item_donGia_10", "item_thanhTien_10", "item_xacNhan_10",
+          "item_hangMuc_11", "item_dienGiai_11", "item_soLuong_11", "item_donGia_11", "item_thanhTien_11", "item_xacNhan_11",
+          "item_hangMuc_12", "item_dienGiai_12", "item_soLuong_12", "item_donGia_12", "item_thanhTien_12", "item_xacNhan_12",
+          "item_hangMuc_13", "item_dienGiai_13", "item_soLuong_13", "item_donGia_13", "item_thanhTien_13", "item_xacNhan_13",
+          "item_hangMuc_14", "item_dienGiai_14", "item_soLuong_14", "item_donGia_14", "item_thanhTien_14", "item_xacNhan_14",
+          "item_hangMuc_15", "item_dienGiai_15", "item_soLuong_15", "item_donGia_15", "item_thanhTien_15", "item_xacNhan_15",
+          "tongCong"
+        ];
+        targetSheet.appendRow(headersXe);
+      }
+    } else if (formType === 'PhieuDanhGiaLop') { // Logic cho Phiếu Đánh Giá Hiện Trạng Lốp
+      targetSheetNameForLog = SHEET_NAME_PHIEU_LOP;
+      targetSheet = ss.getSheetByName(SHEET_NAME_PHIEU_LOP);
+      if (!targetSheet) {
+        targetSheet = ss.insertSheet(SHEET_NAME_PHIEU_LOP);
+        // Headers cho Phiếu Đánh Giá Hiện Trạng Lốp (phải khớp chính xác với các name trong HTML)
+        headersToUse = [
+          "Timestamp", "FormType", "tireOverallCondition", "inspectionDate",
+          "licensePlate", "technician", "phoneNumber", "tireSize",
+          "fl_inner_depth", "fl_outer_depth", "fl_pressure",
+          "fr_inner_depth", "fr_outer_depth", "fr_pressure",
+          "rl_inner_depth", "rl_outer_depth", "rl_pressure",
+          "rr_inner_depth", "rr_outer_depth", "rr_pressure",
+          "spare_depth", "spare_pressure",
+          "rec_canchinhthuoclai", "rec_canbangdong", "rec_daolop", "rec_thaythe"
+        ];
+        targetSheet.appendRow(headersLop); // Sử dụng headersLop đã định nghĩa ở trên
+      }
+    } else {
+      // Xử lý formType không xác định hoặc thiếu
+      targetSheetNameForLog = 'Unknown/Error';
+      let errorSheet = ss.getSheetByName('Lỗi Dữ Liệu'); 
+      if (!errorSheet) {
+        errorSheet = ss.insertSheet('Lỗi Dữ Liệu');
+        errorSheet.appendRow(['Timestamp', 'Error Type', 'FormType', 'Raw Data']);
+      }
+      errorSheet.appendRow([timestamp, 'Unknown FormType', formType, JSON.stringify(parameters)]);
+      
+      debugLogEntry.push(timestamp, e.postData ? (e.postData.type || 'Unknown Post') : 'GET/No PostData', rawPostData, JSON.stringify(parameters), targetSheetNameForLog, formType, 'Unknown formType received. Data logged to "Lỗi Dữ Liệu" sheet.');
+      debugSheet.appendRow(debugLogEntry);
+      
+      return ContentService.createTextOutput(JSON.stringify({ result: 'error', message: 'FormType không hợp lệ hoặc thiếu.' })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // --- Kiểm tra lại: Đảm bảo targetSheet đã được gán giá trị hợp lệ ---
+    if (!targetSheet) {
+      debugLogEntry.push(timestamp, e.postData ? (e.postData.type || 'Unknown Post') : 'GET/No PostData', rawPostData, JSON.stringify(parameters), targetSheetNameForLog, formType, `Sheet "${targetSheetNameForLog}" not found or created.`);
+      debugSheet.appendRow(debugLogEntry);
+      throw new Error(`Trang tính "${targetSheetNameForLog}" không tìm thấy hoặc không thể tạo.`); 
+    }
+    // --- Kết thúc kiểm tra ---
+
+    // Lấy headers hiện tại từ sheet mục tiêu (hàng đầu tiên)
+    // Nếu sheet vừa được tạo, headersToUse sẽ được dùng để tạo dòng đầu tiên
+    const currentHeadersInSheet = targetSheet.getRange(1, 1, 1, targetSheet.getLastColumn()).getValues()[0];
+    const newRow = [];
+
+    // Điền dữ liệu vào hàng mới dựa trên headers hiện có trong sheet
+    for (let i = 0; i < currentHeadersInSheet.length; i++) {
+      const header = currentHeadersInSheet[i]; // Lấy tên header từ sheet
+      let value = parameters[header] || ''; // Lấy giá trị từ e.parameter dựa vào tên header
+
+      // Xử lý các loại input đặc biệt
+      if (header.toLowerCase() === 'timestamp') { 
+        newRow.push(timestamp); // Cột Timestamp đầu tiên
+      } else if (header.toLowerCase() === 'formtype') {
+        newRow.push(formType); // Cột FormType
+      } else if (header.startsWith('rec_') || header.endsWith('_thay') || header.endsWith('_luuy') || header.endsWith('_tot') || header.startsWith('item_xacNhan_') || header === 'kiemTraAnToan') {
+         // Xử lý checkbox và radio button (nếu value là 'on' hoặc có giá trị (cho radio))
+         // 'kiemTraAnToan' là radio button, giá trị của nó sẽ trực tiếp là "Có" hoặc "Không"
+         // các checkbox khác thì kiểm tra 'on'
+         if (header === 'kiemTraAnToan') {
+            newRow.push(value); // Giữ nguyên giá trị "Có" hoặc "Không" của radio
+         } else {
+            newRow.push((value === 'on') ? 'Có' : ''); // Chuyển 'on' thành 'Có', nếu không thì để trống
+         }
+      } else {
+        newRow.push(value); // Các trường input thông thường
+      }
+    }
+
+    targetSheet.appendRow(newRow); 
+
+    // Ghi log thành công vào debug sheet
+    debugLogEntry.push(timestamp, e.postData ? (e.postData.type || 'Unknown Post') : 'GET/No PostData', rawPostData, JSON.stringify(parameters), targetSheetNameForLog, formType, 'Data successfully appended.'); 
+    debugSheet.appendRow(debugLogEntry);
+
+    return ContentService.createTextOutput(JSON.stringify({ result: 'success', message: 'Dữ liệu đã được gửi thành công!', formType: formType, rowData: newRow })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    // Luôn cố gắng ghi log lỗi vào debug sheet
+    const ssError = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const debugSheetError = ssError.getSheetByName(DEBUG_SHEET_NAME);
+    const errorTimestamp = new Date();
+    const errorFormType = e.parameter ? e.parameter.formType || 'Unknown' : 'Unknown';
+    const errorTargetSheet = targetSheetNameForLog || 'Unknown';
+    const errorRawPostData = e.postData ? e.postData.contents : '';
+    const errorParamsJson = JSON.stringify(e.parameter || {});
+
+    if (debugSheetError) {
+      debugSheetError.appendRow([
+        errorTimestamp, 
+        e.postData ? (e.postData.type || 'Unknown Post') : 'GET/No PostData', 
+        errorRawPostData, 
+        errorParamsJson, 
+        errorTargetSheet, 
+        errorFormType, 
+        error.message
+      ]);
+    }
+
+    Logger.log("Lỗi xử lý form: " + error.toString()); // Ghi lỗi vào log của Apps Script Editor
+    return ContentService.createTextOutput(JSON.stringify({ result: 'error', message: error.message })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock(); // Đảm bảo khóa được giải phóng
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput("Đây là endpoint xử lý form POST. Vui lòng gửi dữ liệu bằng phương thức POST.").setMimeType(ContentService.MimeType.TEXT);
+}
