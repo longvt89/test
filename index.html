@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phiếu Kiểm Tra Cấp Độ Bảo Dưỡng Xe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
+        }
+        h1, h2, h3 {
+            color: #0056b3;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+        .legend {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .legend p {
+            margin: 5px 0;
+        }
+        .checklist {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .checklist h3 {
+            color: #28a745;
+            text-align: center;
+        }
+        .checklist table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .checklist th, .checklist td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .checklist th {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        .checklist td.action {
+            font-weight: bold;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .modal-content button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .modal-content button.confirm {
+            background-color: #28a745;
+            color: white;
+        }
+        .modal-content button.confirm:hover {
+            background-color: #218838;
+        }
+        .modal-content button.cancel {
+            background-color: #dc3545;
+            color: white;
+        }
+        .modal-content button.cancel:hover {
+            background-color: #c82333;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        #message.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        #message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        #message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        #message.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        .history-section {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #d4edda;
+            background-color: #d4edda;
+            border-radius: 5px;
+            color: #155724;
+            display: none; /* Hidden by default */
+        }
+        .history-item {
+            border-bottom: 1px dashed #a3c4a3;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .history-item p {
+            margin: 3px 0;
+        }
+        .lookup-section {
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        .lookup-section button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phiếu Kiểm Tra Cấp Độ Bảo Dưỡng Xe</h1>
+
+        <div class="lookup-section">
+            <h2>Tra Cứu Lịch Sử Bảo Dưỡng</h2>
+            <div class="form-group">
+                <label for="lookupLicensePlate">Nhập Biển số xe để tra cứu:</label>
+                <input type="text" id="lookupLicensePlate">
+            </div>
+            <div class="form-group">
+                <button id="lookupButton">Tra cứu</button>
+            </div>
+        </div>
+
+        <div id="historyDisplay" class="history-section">
+            <h3>Lịch sử bảo dưỡng cho Biển số xe: <span id="historyLicensePlate"></span></h3>
+            <div id="historyItems">
+                </div>
+        </div>
+
+        <div id="mainFormContainer" style="display: none;">
+            <h2>Thông tin Bảo Dưỡng Hiện Tại</h2>
+            <form id="maintenanceForm">
+                <div class="form-group">
+                    <label for="licensePlate">Biển số xe:</label>
+                    <input type="text" id="licensePlate" required>
+                </div>
+                <div class="form-group">
+                    <label for="phoneNumber">Số Điện thoại:</label>
+                    <input type="text" id="phoneNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerName">Họ tên khách:</label>
+                    <input type="text" id="customerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="prevMileage">Số Kilomet lần trước:</label>
+                    <input type="number" id="prevMileage">
+                    <small> (Điền tự động nếu có lịch sử hoặc nhập thủ công cho xe mới)</small>
+                </div>
+                <div class="form-group">
+                    <label for="currentMileage">Số Kilomet hiện tại:<span style="color: red;">*</span></label>
+                    <input type="number" id="currentMileage" required>
+                </div>
+                <div class="form-group">
+                    <label for="nextExpectedMileage">Số kilomet dự kiến lần tiếp theo bảo dưỡng:</label>
+                    <input type="number" id="nextExpectedMileage">
+                    <small> (Để trống nếu không xác định)</small>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Kiểm tra bảo dưỡng</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="message" style="display: none;"></div>
+
+        <div class="legend">
+            <h3>Chú thích:</h3>
+            <p>I - Inspection: Kiểm tra và xử lí theo tình trạng</p>
+            <p>R - Replace: Thay thế</p>
+            <p>A - Adjust: Vệ sinh hoặc căn chỉnh</p>
+        </div>
+
+        <div id="checklistResult" class="checklist" style="display: none;">
+            <h3>Kết quả kiểm tra bảo dưỡng:</h3>
+            <p><strong>Biển số xe:</strong> <span id="displayLicensePlate"></span></p>
+            <p><strong>Tên khách hàng:</strong> <span id="displayCustomerName"></span></p>
+            <p><strong>Số điện thoại:</strong> <span id="displayPhoneNumber"></span></p>
+            <p><strong>Số kilomet lần trước:</strong> <span id="displayPrevMileage"></span> km</p>
+            <p><strong>Số kilomet hiện tại:</strong> <span id="displayCurrentMileage"></span> km</p>
+            <p><strong>Cấp độ bảo dưỡng đề xuất:</strong> <span id="suggestedLevel"></span></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hạng mục</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="maintenanceItemsTableBody">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <p id="modalMessage"></p>
+            <button class="confirm" id="confirmButton">Xác nhận</button>
+            <button class="cancel" id="cancelButton">Hủy</button>
+        </div>
+    </div>
+
+    <script>
+        // Dữ liệu bảo dưỡng từ file CSV của bạn
+        const maintenanceData = {
+            "maintenance_items": [
+                { "Hạng mục": "Kiểm tra an toàn", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "I" },
+                { "Hạng mục": "Dầu động cơ", "Cap_Nho": "R", "Cap_Trung_binh": "R", "Cap_Trung_binh_lon": "R", "Cap_Lon": "R" },
+                { "Hạng mục": "Lọc dầu động cơ", "Cap_Nho": null, "Cap_Trung_binh": "R", "Cap_Trung_binh_lon": "R", "Cap_Lon": "R" },
+                { "Hạng mục": "Lọc gió động cơ", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "R", "Cap_Lon": "R" },
+                { "Hạng mục": "Dầu phanh", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "R" },
+                { "Hạng mục": "Nước rửa kính", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "I" },
+                { "Hạng mục": "Ắc quy", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "R", "Cap_Lon": "R" },
+                { "Hạng mục": "Gạt mưa", "Cap_Nho": "I", "Cap_Trung_binh": "R", "Cap_Trung_binh_lon": "R", "Cap_Lon": "R" },
+                { "Hạng mục": "Lọc gió máy lạnh", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "R", "Cap_Lon": "R" },
+                { "Hạng mục": "Phanh", "Cap_Nho": "I", "Cap_Trung_binh": "A", "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Đảo lốp", "Cap_Nho": null, "Cap_Trung_binh": "A", "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Cân bằng động", "Cap_Nho": null, "Cap_Trung_binh": "A", "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Góc đặt bánh xe", "Cap_Nho": "I", "Cap_Trung_binh": "A", "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Level 2 - Dịch vụ mở rộng", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": null, "Cap_Lon": null },
+                { "Hạng mục": "Rotuyn (lái, trụ)", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "I" },
+                { "Hạng mục": "Phuộc", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "I" },
+                { "Hạng mục": "Bạc đạn bánh xe", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "I" },
+                { "Hạng mục": "Dầu hộp số thường", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": "I", "Cap_Lon": "R" },
+                { "Hạng mục": "Dầu hộp số tự động", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": "I", "Cap_Lon": "R" },
+                { "Hạng mục": "Dầu vi sai / cầu", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": "I", "Cap_Lon": "R" },
+                { "Hạng mục": "V-belt", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "I" },
+                { "Hạng mục": "Bugi", "Cap_Nho": "R: mỗi 40.000 km với loại thường và 100.000 km với loại điện cực hợp kim", "Cap_Trung_binh": null, "Cap_Trung_binh_lon": null, "Cap_Lon": null },
+                { "Hạng mục": "Dầu trợ lực lái", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "R" },
+                { "Hạng mục": "Lọc nhiên liệu (diesel)", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": "R", "Cap_Lon": "R" },
+                { "Hạng mục": "Lọc nhiên liệu động cơ xăng", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": null, "Cap_Lon": "R" },
+                { "Hạng mục": "Bóng đèn", "Cap_Nho": "I", "Cap_Trung_binh": "I", "Cap_Trung_binh_lon": "I", "Cap_Lon": "I" },
+                { "Hạng mục": "Dịch vụ gia tăng giá trị - Khuyến nghị để tăng hài lòng khách hàng và hiệu quả cửa hàng", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": null, "Cap_Lon": null },
+                { "Hạng mục": "Vệ sinh giàn lạnh", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Vệ sinh hệ thống nhiên liệu", "Cap_Nho": "A", "Cap_Trung_binh": "A", "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Vệ sinh kim phun trực tiếp", "Cap_Nho": "A: mỗi 30.000 km hoặc 18 tháng", "Cap_Trung_binh": null, "Cap_Trung_binh_lon": null, "Cap_Lon": null },
+                { "Hạng mục": "Súc rửa động cơ", "Cap_Nho": null, "Cap_Trung_binh": "A", "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Phụ gia nâng cấp nhớt", "Cap_Nho": "A", "Cap_Trung_binh": "A", "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" },
+                { "Hạng mục": "Vệ sinh họng ga", "Cap_Nho": null, "Cap_Trung_binh": null, "Cap_Trung_binh_lon": "A", "Cap_Lon": "A" }
+            ],
+            "legend": {
+                "I": "Inspection: Kiểm tra và xử lí theo tình trạng",
+                "R": "Replace: Thay thế",
+                "A": "Adjust: Vệ sinh hoặc căn chỉnh"
+            }
+        };
+
+        // DOM Elements
+        const lookupLicensePlateInput = document.getElementById('lookupLicensePlate');
+        const lookupButton = document.getElementById('lookupButton');
+        const historyDisplay = document.getElementById('historyDisplay');
+        const historyLicensePlate = document.getElementById('historyLicensePlate');
+        const historyItemsDiv = document.getElementById('historyItems');
+        const mainFormContainer = document.getElementById('mainFormContainer');
+
+        const form = document.getElementById('maintenanceForm');
+        const licensePlateInput = document.getElementById('licensePlate');
+        const phoneNumberInput = document.getElementById('phoneNumber');
+        const customerNameInput = document.getElementById('customerName');
+        const prevMileageInput = document.getElementById('prevMileage');
+        const currentMileageInput = document.getElementById('currentMileage');
+        const nextExpectedMileageInput = document.getElementById('nextExpectedMileage');
+
+        const checklistResult = document.getElementById('checklistResult');
+        const maintenanceItemsTableBody = document.getElementById('maintenanceItemsTableBody');
+        const suggestedLevelSpan = document.getElementById('suggestedLevel');
+        const displayLicensePlate = document.getElementById('displayLicensePlate');
+        const displayCustomerName = document.getElementById('displayCustomerName');
+        const displayPhoneNumber = document.getElementById('displayPhoneNumber');
+        const displayPrevMileage = document.getElementById('displayPrevMileage');
+        const displayCurrentMileage = document.getElementById('displayCurrentMileage');
+
+        const confirmationModal = document.getElementById('confirmationModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const confirmButton = document.getElementById('confirmButton');
+        const cancelButton = document.getElementById('cancelButton');
+        const messageDiv = document.getElementById('message');
+
+        // Store car history in localStorage
+        let carHistory = JSON.parse(localStorage.getItem('carMaintenanceHistory')) || {};
+
+        // --- Google Apps Script Web App URL ---
+        // RẤT QUAN TRỌNG: Bạn cần thay thế placeholder này bằng URL được tạo từ Google Apps Script của bạn.
+        // Vui lòng kiểm tra kỹ Hướng dẫn thiết lập Google Apps Script bên dưới.
+        const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbygAoHtR-lMLTgauoKFgcoXplGolvD8BdICe7fv6aX_1-HVJ8AkR0gT5Zmlj1IRwy8/exec'; // <-- THAY THẾ BỞI URL THỰC TẾ CỦA BẠN!
+
+        // --- Event Listeners ---
+        lookupButton.addEventListener('click', function() {
+            const lookupPlate = lookupLicensePlateInput.value.trim().toUpperCase();
+            if (!lookupPlate) {
+                showMessage('Vui lòng nhập Biển số xe để tra cứu.', 'error');
+                return;
+            }
+            lookupCarHistory(lookupPlate);
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const licensePlate = licensePlateInput.value.trim().toUpperCase();
+            const phoneNumber = phoneNumberInput.value.trim();
+            const customerName = customerNameInput.value.trim();
+            const prevMileage = parseInt(prevMileageInput.value); // prevMileage có thể là NaN nếu không nhập
+            const currentMileage = parseInt(currentMileageInput.value);
+            const nextExpectedMileageVal = nextExpectedMileageInput.value ? parseInt(nextExpectedMileageInput.value) : null;
+
+            // Kiểm tra tính hợp lệ của số kilomet
+            if (isNaN(currentMileage) || currentMileage < 0) {
+                showMessage('Vui lòng nhập Số Kilomet hiện tại hợp lệ (là một số dương).', 'error');
+                return;
+            }
+            if (!isNaN(prevMileage) && currentMileage < prevMileage) { // Chỉ kiểm tra nếu prevMileage được nhập
+                 showMessage('Số Kilomet hiện tại phải lớn hơn hoặc bằng Số Kilomet lần trước.', 'error');
+                 return;
+            }
+
+
+            // Determine if this is a first-time entry or subsequent
+            const isFirstTimeEntry = !carHistory[licensePlate] || carHistory[licensePlate].length === 0;
+
+            if (isFirstTimeEntry) {
+                // First-time entry, directly process
+                const suggestedLevel = determineMaintenanceLevel(currentMileage);
+                processAndSaveMaintenance(licensePlate, phoneNumber, customerName, isNaN(prevMileage) ? null : prevMileage, currentMileage, nextExpectedMileageVal, suggestedLevel);
+            } else {
+                // Subsequent entry, check for confirmation logic
+                const lastEntry = carHistory[licensePlate][carHistory[licensePlate].length - 1];
+                const lastNextExpectedMileage = lastEntry.nextExpectedMileage;
+                const lastCurrentMileage = lastEntry.currentMileage;
+
+                let needsNextLevelConfirmation = false;
+                let suggestedNextLevel = '';
+                let modalMsg = '';
+
+                // Logic cho trường hợp đến/quá mốc dự kiến hoặc đã đi đủ 5000km từ lần cuối
+                if (lastNextExpectedMileage && currentMileage >= lastNextExpectedMileage) {
+                    needsNextLevelConfirmation = true;
+                    suggestedNextLevel = determineMaintenanceLevel(currentMileage);
+                    modalMsg = `Biển số xe "${licensePlate}" đã có lịch sử. Số KM lần cuối: ${lastCurrentMileage} km. Số KM dự kiến bảo dưỡng tiếp theo là ${lastNextExpectedMileage} km. Bạn có muốn xác nhận làm bảo dưỡng cho cấp độ tiếp theo (${suggestedNextLevel.replace(/_/g, ' ')}) không?`;
+                } else if (!lastNextExpectedMileage && (currentMileage - lastCurrentMileage) >= 5000) {
+                    needsNextLevelConfirmation = true;
+                    suggestedNextLevel = determineMaintenanceLevel(currentMileage);
+                    modalMsg = `Biển số xe "${licensePlate}" đã có lịch sử. Số KM lần cuối: ${lastCurrentMileage} km. Đã đi được ${currentMileage - lastCurrentMileage} km kể từ lần bảo dưỡng trước. Bạn có muốn xác nhận làm bảo dưỡng cho cấp độ tiếp theo (${suggestedNextLevel.replace(/_/g, ' ')}) không?`;
+                } else if (lastNextExpectedMileage && currentMileage < lastNextExpectedMileage) {
+                    const remainingKm = lastNextExpectedMileage - currentMileage;
+                    suggestedNextLevel = determineMaintenanceLevel(lastNextExpectedMileage); // Suggest the level if they confirm for next
+                    modalMsg = `Biển số xe "${licensePlate}" đã có lịch sử. Số KM lần cuối: ${lastCurrentMileage} km. Bạn còn ${remainingKm} km nữa là đến mốc bảo dưỡng tiếp theo (${lastNextExpectedMileage} km). Bạn có muốn xác nhận làm bảo dưỡng cho cấp độ tiếp theo (${suggestedNextLevel.replace(/_/g, ' ')}) ngay bây giờ không?`;
+                    needsNextLevelConfirmation = true; // Still give the option to confirm early
+                }
+
+
+                if (needsNextLevelConfirmation) {
+                    modalMessage.innerHTML = modalMsg;
+                    confirmationModal.style.display = 'flex'; // Show the modal
+                    confirmButton.onclick = () => {
+                        confirmationModal.style.display = 'none';
+                        processAndSaveMaintenance(licensePlate, phoneNumber, customerName, prevMileage, currentMileage, nextExpectedMileageVal, suggestedNextLevel);
+                    };
+                    cancelButton.onclick = () => {
+                        confirmationModal.style.display = 'none';
+                        showMessage('Bạn đã hủy yêu cầu bảo dưỡng cho cấp độ tiếp theo.', 'info');
+                        // Display current level based on mileage for this visit
+                        const currentLevel = determineMaintenanceLevel(currentMileage);
+                        displayChecklist(licensePlate, phoneNumber, customerName, prevMileage, currentMileage, currentLevel);
+                    };
+                } else {
+                    // Nếu không có điều kiện đặc biệt, xử lý cấp độ hiện tại dựa trên số kilomet mới
+                    const suggestedLevel = determineMaintenanceLevel(currentMileage);
+                    processAndSaveMaintenance(licensePlate, phoneNumber, customerName, prevMileage, currentMileage, nextExpectedMileageVal, suggestedLevel);
+                }
+            }
+        });
+
+        // --- Functions ---
+
+        function resetForm() {
+            licensePlateInput.value = '';
+            phoneNumberInput.value = '';
+            customerNameInput.value = '';
+            prevMileageInput.value = '';
+            currentMileageInput.value = '';
+            nextExpectedMileageInput.value = '';
+
+            licensePlateInput.readOnly = false; // Mở khóa biển số xe cho nhập liệu mới
+            prevMileageInput.readOnly = false; // Mở khóa kilomet cũ cho nhập liệu mới
+
+            historyDisplay.style.display = 'none';
+            checklistResult.style.display = 'none';
+            mainFormContainer.style.display = 'none'; // Ẩn form chính cho đến khi tra cứu
+            messageDiv.style.display = 'none';
+        }
+
+        // Reset form khi tải trang
+        document.addEventListener('DOMContentLoaded', resetForm);
+
+
+        function lookupCarHistory(plate) {
+            resetForm(); // Reset form trước khi hiển thị
+
+            licensePlateInput.value = plate; // Pre-fill license plate in main form
+
+            const history = carHistory[plate];
+
+            if (history && history.length > 0) {
+                historyDisplay.style.display = 'block';
+                historyLicensePlate.textContent = plate;
+                historyItemsDiv.innerHTML = ''; // Clear previous history items
+
+                // Sort history by timestamp descending (latest first)
+                history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                history.forEach((entry, index) => {
+                    const historyItem = document.createElement('div');
+                    historyItem.classList.add('history-item');
+                    historyItem.innerHTML = `
+                        <p><strong>Lần ${history.length - index}:</strong></p>
+                        <p>Thời gian: ${new Date(entry.timestamp).toLocaleString('vi-VN')}</p>
+                        <p>Số KM lần trước: ${entry.prevMileage === null ? 'N/A' : entry.prevMileage + ' km'}</p>
+                        <p>Số KM hiện tại: ${entry.currentMileage} km</p>
+                        <p>Cấp độ bảo dưỡng: ${entry.suggestedLevel.replace(/_/g, ' ')}</p>
+                        <p>KM dự kiến lần tiếp theo: ${entry.nextExpectedMileage ? entry.nextExpectedMileage + ' km' : 'Không xác định'}</p>
+                    `;
+                    historyItemsDiv.appendChild(historyItem);
+                });
+
+                // Pre-fill main form with latest history data
+                const latestEntry = history[0];
+                phoneNumberInput.value = latestEntry.phoneNumber || '';
+                customerNameInput.value = latestEntry.customerName || '';
+                prevMileageInput.value = latestEntry.currentMileage; // Prev mileage for new entry is last entry's current mileage
+                prevMileageInput.readOnly = true; // Lock prevMileage if pre-filled from history
+                nextExpectedMileageInput.value = latestEntry.nextExpectedMileage || ''; // Pre-fill if exists
+
+                licensePlateInput.readOnly = true; // Lock license plate if history found
+
+                showMessage('Đã tìm thấy lịch sử bảo dưỡng cho xe này. Vui lòng điền số kilomet hiện tại.', 'info');
+            } else {
+                // No history found, clear relevant form fields for new entry
+                phoneNumberInput.value = '';
+                customerNameInput.value = '';
+                prevMileageInput.value = ''; // Ensure it's empty for new cars
+                prevMileageInput.readOnly = false; // Allow manual entry for new cars
+                nextExpectedMileageInput.value = '';
+
+                licensePlateInput.readOnly = false; // Allow editing if it's a new car lookup
+
+                showMessage('Không tìm thấy lịch sử bảo dưỡng cho biển số xe này. Vui lòng nhập thông tin cho lần bảo dưỡng đầu tiên.', 'info');
+            }
+            mainFormContainer.style.display = 'block'; // Always show the main form after lookup attempt
+        }
+
+        function showMessage(msg, type) {
+            messageDiv.textContent = msg;
+            messageDiv.className = ''; // Clear previous classes
+            messageDiv.classList.add(type); // Add new type class
+            messageDiv.style.display = 'block';
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000); // Hide after 5 seconds
+        }
+
+        async function processAndSaveMaintenance(licensePlate, phoneNumber, customerName, prevMileage, currentMileage, nextExpectedMileage, suggestedLevel) {
+            const newEntry = {
+                licensePlate: licensePlate,
+                phoneNumber: phoneNumber,
+                customerName: customerName,
+                prevMileage: prevMileage, // Can be null for first time or filled
+                currentMileage: currentMileage,
+                nextExpectedMileage: nextExpectedMileage,
+                suggestedLevel: suggestedLevel,
+                timestamp: new Date().toISOString()
+            };
+
+            // Save to localStorage
+            if (!carHistory[licensePlate]) {
+                carHistory[licensePlate] = [];
+            }
+            carHistory[licensePlate].push(newEntry);
+            localStorage.setItem('carMaintenanceHistory', JSON.stringify(carHistory));
+
+            // Display checklist
+            displayChecklist(licensePlate, phoneNumber, customerName, prevMileage, currentMileage, suggestedLevel);
+
+            // Send data to Google Sheet
+            await sendDataToGoogleSheet(newEntry);
+        }
+
+        function determineMaintenanceLevel(mileage) {
+            // Determine the maintenance level based on mileage.
+            // Priority is given to higher-interval services if mileage matches exactly.
+            // Otherwise, it falls back to the highest applicable level below the mileage.
+
+            // The mileage intervals as per the CSV:
+            // Cấp Nhỏ: (5K, 15K, 25K, 35K, 45K, 55K,…..) -> every 10K starting from 5K
+            // Cấp Trung bình: (10K, 30K, 50K, 70K, 90K,….) -> every 20K starting from 10K
+            // Cấp Trung bình lớn: (20K, 60K, 100K,….) -> every 40K starting from 20K
+            // Cấp lớn: (40K, 80K, 120K,….) -> every 40K starting from 40K
+
+            if (mileage % 40000 === 0 && mileage >= 40000) {
+                return 'Cap_Lon';
+            }
+            if (mileage % 40000 === 20000 && mileage >= 20000) {
+                return 'Cap_Trung_binh_lon';
+            }
+            if (mileage % 20000 === 10000 && mileage >= 10000) {
+                return 'Cap_Trung_binh';
+            }
+            if (mileage % 10000 === 5000 && mileage >= 5000) {
+                return 'Cap_Nho';
+            }
+
+            // Fallback for mileages that don't perfectly align with a specific interval
+            // This is a simplified fallback. You might need more specific rules.
+            if (mileage >= 40000) {
+                return 'Cap_Lon';
+            }
+            if (mileage >= 20000) {
+                return 'Cap_Trung_binh_lon';
+            }
+            if (mileage >= 10000) {
+                return 'Cap_Trung_binh';
+            }
+            if (mileage >= 5000) {
+                return 'Cap_Nho';
+            }
+            return 'Cap_Nho'; // Default for very low mileage or if no clear match
+        }
+
+
+        function displayChecklist(licensePlate, phoneNumber, customerName, prevMileage, currentMileage, suggestedLevel) {
+            displayLicensePlate.textContent = licensePlate;
+            displayCustomerName.textContent = customerName;
+            displayPhoneNumber.textContent = phoneNumber;
+            displayPrevMileage.textContent = prevMileage === null ? 'N/A' : prevMileage;
+            displayCurrentMileage.textContent = currentMileage;
+            suggestedLevelSpan.textContent = suggestedLevel.replace(/_/g, ' '); // Display user-friendly level name
+
+            maintenanceItemsTableBody.innerHTML = ''; // Clear previous items
+
+            maintenanceData.maintenance_items.forEach(item => {
+                const action = item[suggestedLevel];
+                if (action) {
+                    const row = maintenanceItemsTableBody.insertRow();
+                    const itemCell = row.insertCell();
+                    const actionCell = row.insertCell();
+                    itemCell.textContent = item['Hạng mục'];
+                    actionCell.textContent = action;
+                    actionCell.classList.add('action'); // Add a class for styling
+                }
+            });
+
+            checklistResult.style.display = 'block'; // Show the checklist
+        }
+
+        async function sendDataToGoogleSheet(data) {
+            // Kiểm tra xem URL đã được cấu hình chưa
+            if (GOOGLE_SHEET_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbygAoHtR-lMLTgauoKFgcoXplGolvD8BdICe7fv6aX_1-HVJ8AkR0gT5Zmlj1IRwy8/exec') {
+                console.warn('Cảnh báo: URL của Google Apps Script Web App chưa được cấu hình. Dữ liệu sẽ không được gửi.');
+                showMessage('Lưu ý: Chức năng lưu dữ liệu về Google Sheet chưa được cấu hình. Vui lòng thiết lập Google Apps Script.', 'warning');
+                return;
+            }
+
+            try {
+                // Sử dụng phương thức POST để gửi dữ liệu JSON
+                const response = await fetch(GOOGLE_SHEET_WEB_APP_URL, {
+                    method: 'POST',
+                    // Không sử dụng 'no-cors' để có thể nhận phản hồi lỗi từ server.
+                    // Nếu gặp lỗi CORS, bạn cần cấu hình Apps Script để cho phép CORS từ origin của bạn.
+                    // Tuy nhiên, với "Anyone" access, thường thì không cần cấu hình CORS phức tạp.
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                // Kiểm tra phản hồi từ Apps Script
+                const responseText = await response.text(); // Lấy phản hồi dưới dạng text
+                console.log('Phản hồi từ Apps Script:', responseText);
+
+                try {
+                    const jsonResponse = JSON.parse(responseText);
+                    if (jsonResponse.result === 'success') {
+                        showMessage('Dữ liệu đã được lưu trữ thành công vào Google Sheet!', 'success');
+                    } else {
+                        showMessage('Lỗi từ Google Sheet: ' + (jsonResponse.message || 'Không rõ lỗi.'), 'error');
+                    }
+                } catch (jsonError) {
+                    console.error('Không thể phân tích JSON phản hồi:', jsonError);
+                    showMessage('Lỗi: Phản hồi từ Google Sheet không hợp lệ. Kiểm tra console.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Lỗi khi gửi dữ liệu đến Google Sheet:', error);
+                showMessage('Lỗi mạng hoặc không thể kết nối đến Google Sheet. Vui lòng kiểm tra kết nối và URL Apps Script.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
